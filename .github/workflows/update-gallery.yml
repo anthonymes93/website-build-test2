@@ -1,0 +1,28 @@
+name: Update Past Jobs photo gallery
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/past-jobs-photos/**'
+      - 'scripts/build-gallery.py'
+      - '.github/workflows/update-gallery.yml'
+permissions:
+  contents: write
+jobs:
+  update-gallery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate gallery list
+        run: python3 scripts/build-gallery.py
+      - name: Commit updated gallery list
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/past-jobs-gallery.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Past Jobs gallery photo list"
+            git push
+          fi
